@@ -79,12 +79,12 @@ def run_email_agent(email_id):
                 # If the email message isn't multipart
                 email_body = msg.get_payload(decode=True).decode()
 
-    create(email_body,email_from)
+    create(email_body,email_from,email_subject)
     #mark_as_seen(email_id)
     # Logout and close the connection
     mail.logout()
 
-def create(email_body,email_from):
+def create(email_body,email_from,email_subject):
     current_date = datetime.now().strftime("%B %d, %Y")
     prompt_template ="Take note of this date: {current_date} and this email content: {email_body}. Now, generate an email body that includes only a table with the following columns: From_date, To_date, Current_date and sender email ={email_from}. If necessary, calculate the From_date and To_date based on the information provided in the email."
     
@@ -100,14 +100,15 @@ def create(email_body,email_from):
         "email_body": email_body,
         "email_from": email_from,
     })
-    
+    email_content=email_body+email_content
+
     recipient_email = "sair62995@gmail.com"
-    send_email(email_content,recipient_email)
+    send_email(email_content,recipient_email,email_subject)
 
 #send email
-def send_email(email_content, recipient_email):
+def send_email(email_content, recipient_email,email_subject):
     msg = MIMEText(email_content)
-    msg['Subject'] = "Leave request"
+    msg['Subject'] = email_subject
     msg['From'] = username
     msg['To'] = recipient_email
     server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
