@@ -14,9 +14,12 @@ from email.header import decode_header
 from apikey import openapi_key
 import smtplib
 from email.mime.text import MIMEText
+from bs4 import BeautifulSoup
+from database import session, Email
 
-username="smverappan@gmail.com"
-password="ifwg xeml wxvz kzut"
+
+username="aiprojsample@gmail.com"
+password="qhnp qqcq wryb juhf"
 
 os.environ['OPENAI_API_KEY'] = openapi_key
 
@@ -86,23 +89,70 @@ def run_email_agent(email_id):
 
 def create(email_body,email_from,email_subject):
     current_date = datetime.now().strftime("%B %d, %Y")
-    prompt_template ="Take note of this date: {current_date} and this email content: {email_body}. Now, generate an email body that includes only a table with the following columns: From_date, To_date, Current_date and sender email ={email_from}. If necessary, calculate the From_date and To_date based on the information provided in the email."
+    email_format = f""" 
+    <!DOCTYPE html> 
+    <html> 
+    <head> 
+    <style> 
+    table {{ width: 100%; border-collapse: collapse; }} 
+    th, td {{ border: 1px solid black; padding: 8px; text-align: left; }} 
+    th {{ background-color: #f2f2f2; }} 
+    </style> 
+    </head> 
+    <body> 
+    <table> 
+    <tr> 
+    <th>Sender Email</th> 
+    <th>From Date</th> 
+    <th>To Date</th> 
+    <th>Current Date</th> 
+    </tr> 
+    <tr> 
+    <td>{email_from}</td> 
+    <td><!-- From_date from LLM output --></td> 
+    <td><!-- To_date from LLM output --></td> 
+    <td>{current_date}</td> 
+    </tr> 
+    </table> 
+    </body> 
+    </html> 
+    """
+
+    prompt_template ="Take note of this date: {current_date} and this email content: {email_body}. Now, generate an email body that includes only a table with the following columns: Sender ({email_from}),From_date, To_date, and Current_date. If necessary, calculate the From_date and To_date based on the information provided in the email.Generate the output in the form of table mentioned in {email_format}. Format all dates in {current_date}"
     
     prompt = PromptTemplate(
-        input_variables=["current_date", "email_body", "email_from"],
+        input_variables=["current_date", "email_body", "email_from","email_format"],
         template=prompt_template,
     )
-    llm = OpenAI(temperature=0.4)
+    llm = OpenAI(temperature=0.6)
     chain = LLMChain(llm=llm, prompt=prompt)
 
     email_content = chain.run({
         "current_date": current_date,
         "email_body": email_body,
         "email_from": email_from,
+        "email_format": email_format
     })
-    email_content=email_body+email_content
 
-    recipient_email = "sair62995@gmail.com"
+    soup = BeautifulSoup(email_content, 'html.parser')
+    from_date = soup.find_all('td')[1].text.strip()
+    to_date = soup.find_all('td')[2].text.strip()
+
+    # Store email in database
+    email_record = Email(
+        email_from=email_from,
+        email_subject=email_subject,
+        from_date=from_date,
+        to_date=to_date
+    )
+    session.add(email_record)
+    session.commit()
+    print("Email stored in database")
+
+    email_content=email_body+"\n \n"+email_content
+
+
+    recipient_email = "sair62995@gmail.com"  #receipient email here
     send_email(email_content,recipient_email,email_subject)
 
 #send email
@@ -132,6 +182,8 @@ def send_email(email_content, recipient_email,email_subject):
 
     print(agent.run(email_content))
     mail.store(email_id, '+FLAGS', '\\Seen')"""
+
+
 
 # Schedule the email check and agent run every 10 seconds
 schedule.every(5).seconds.do(run_final)

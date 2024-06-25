@@ -1,1 +1,1 @@
-openapi_key='sk-proj-KK7x97999u4UE66vIQdNT3BlbkFJkvbR1vXPbxSuBmle0LXA'
+openapi_key='sk-proj-f51dB4JlF6plGVZXT9HrT3BlbkFJEtUEW1H2WKQIGf53MNvl'
