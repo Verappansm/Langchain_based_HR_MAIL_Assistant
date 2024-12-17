@@ -5,7 +5,7 @@ from datetime import datetime
 import psycopg2
 
 # Ensure psycopg2-binary is being used
-engine = create_engine("postgresql+psycopg2://postgres:22bce1313@localhost/emails")
+engine = create_engine(os.getenv("DATABASE_URL"))
 Base = declarative_base()
 
 class Email(Base):
