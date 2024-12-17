@@ -18,8 +18,8 @@ from bs4 import BeautifulSoup
 from database import session, Email
 
 
-username="aiprojsample@gmail.com"
-password=""  #add your mail password....this is not ur login passsword....the methond to find the password is given in the README file
+username="aiprojsample@gmail.com" #This is the mail that will be checked
+password=""  #add your mail password....this is not ur login passsword....the method to find the password is given in the README file
 
 os.environ['OPENAI_API_KEY'] = openapi_key
 
