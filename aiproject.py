@@ -19,7 +19,7 @@ from database import session, Email
 
 
 username="aiprojsample@gmail.com"
-password="qhnp qqcq wryb juhf"
+password=""  #add your mail password....this is not ur login passsword....the methond to find the password is given in the README file
 
 os.environ['OPENAI_API_KEY'] = openapi_key
 
@@ -152,7 +152,7 @@ def create(email_body,email_from,email_subject):
     email_content=email_body+"\n \n"+email_content
 
 
-    recipient_email = "sair62995@gmail.com"  #receipient email here
+    recipient_email = ""  #receipient email here
     send_email(email_content,recipient_email,email_subject)
 
 #send email
@@ -169,7 +169,7 @@ def send_email(email_content, recipient_email,email_subject):
 """def mark_as_seen(email_id):
     # Mark the email as seen
     mail = imaplib.IMAP4_SSL('imap.gmail.com')
-    mail.login("smverappan@gmail.com", "ifwg xeml wxvz kzut")
+    mail.login("", "")
     mail.select('inbox')
     mail.store(email_id, '+FLAGS', '\\Seen')
     mail.logout()
